@@ -1,0 +1,427 @@
+<h2 class="sr-only">Prueba de hipótesis interactiva: población, distribución muestral y 10 muestras independientes</h2>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:var(--color-background-tertiary,#f5f5f2);color:var(--color-text-primary,#111);padding:16px;font-size:14px}
+.panel{background:var(--color-background-primary,#fff);border:0.5px solid var(--color-border-tertiary,rgba(0,0,0,0.15));border-radius:12px;padding:16px;margin-bottom:12px}
+.panel-title{font-size:11px;font-weight:500;color:var(--color-text-secondary,#888);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.controls{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end}
+.ctrl-group{display:flex;flex-direction:column;gap:4px}
+.ctrl-group label{font-size:11px;color:var(--color-text-secondary,#777)}
+.ctrl-section{display:flex;flex-direction:column;gap:6px}
+.ctrl-section .sect-lbl{font-size:11px;font-weight:500;color:var(--color-text-secondary,#666)}
+.ctrl-section .row{display:flex;gap:10px}
+input[type=number]{width:88px;padding:5px 9px;border:0.5px solid var(--color-border-secondary,rgba(0,0,0,0.2));border-radius:8px;background:var(--color-background-secondary,#f5f5f2);color:var(--color-text-primary,#111);font-size:13px}
+.div{width:0.5px;background:var(--color-border-tertiary,rgba(0,0,0,0.12));align-self:stretch}
+button#gen{background:#534AB7;color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:500;cursor:pointer}
+button#gen:hover{background:#3C3489}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:12px}
+.met{background:var(--color-background-secondary,#f5f5f2);border-radius:8px;padding:9px 12px}
+.met .lbl{font-size:10px;color:var(--color-text-secondary,#777);margin-bottom:3px}
+.met .val{font-size:17px;font-weight:500}
+.met.acc .val{color:#534AB7}
+.cw{position:relative;width:100%}
+.h220{height:220px}.h200{height:200px}.h260{height:260px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:6px 9px;text-align:center;color:var(--color-text-secondary,#777);font-weight:500;border-bottom:0.5px solid var(--color-border-tertiary,rgba(0,0,0,0.12));white-space:nowrap}
+td{padding:6px 9px;text-align:center;border-bottom:0.5px solid var(--color-border-tertiary,rgba(0,0,0,0.07))}
+.sr{cursor:pointer;transition:background .15s}
+.sr:hover{background:var(--color-background-secondary,#f5f5f2)}
+.sr.sel{background:var(--color-background-info,#e6f1fb)}
+.badge{display:inline-block;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:500}
+.pass{background:#EAF3DE;color:#3B6D11}.fail{background:#FCEBEB;color:#A32D2D}
+.sig{color:#A32D2D;font-weight:500}.ok{color:#3B6D11;font-weight:500}
+.leg{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--color-text-secondary,#777);margin-top:8px}
+.leg span{display:flex;align-items:center;gap:5px}
+.dot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+#ph{text-align:center;padding:40px;color:var(--color-text-secondary,#777)}
+#res{display:none}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:580px){.row2{grid-template-columns:1fr}}
+</style>
+
+<div class="panel">
+  <div class="panel-title">Parámetros</div>
+  <div class="controls">
+    <div class="ctrl-section">
+      <span class="sect-lbl">Población</span>
+      <div class="row">
+        <div class="ctrl-group"><label>μ (media)</label><input type="number" id="pmu" value="50" step="1"></div>
+        <div class="ctrl-group"><label>σ (desv. est.)</label><input type="number" id="psig" value="10" min="0.1" step="0.5"></div>
+      </div>
+    </div>
+    <div class="div"></div>
+    <div class="ctrl-section">
+      <span class="sect-lbl">Muestra</span>
+      <div class="ctrl-group"><label>Tamaño n</label><input type="number" id="ns" value="50" min="10" max="500" step="10"></div>
+    </div>
+    <div class="div"></div>
+    <div class="ctrl-section">
+      <span class="sect-lbl">Hipótesis nula H₀</span>
+      <div class="row">
+        <div class="ctrl-group"><label>μ₀</label><input type="number" id="h0m" value="50" step="1"></div>
+        <div class="ctrl-group"><label>σ₀²</label><input type="number" id="h0v" value="100" min="0.01" step="1"></div>
+      </div>
+    </div>
+    <div class="div"></div>
+    <div class="ctrl-section">
+      <span class="sect-lbl">Nivel</span>
+      <div class="ctrl-group"><label>α</label><input type="number" id="alpha" value="0.05" min="0.001" max="0.2" step="0.01"></div>
+    </div>
+    <button id="gen" onclick="run()"><i class="ti ti-player-play" aria-hidden="true"></i> Generar</button>
+  </div>
+</div>
+
+<div id="ph"><i class="ti ti-chart-histogram" style="font-size:36px;display:block;margin-bottom:10px" aria-hidden="true"></i>Configura los parámetros y presiona <strong>Generar</strong></div>
+
+<div id="res">
+  <div class="panel">
+    <div class="panel-title">Distribución poblacional · N = 100.000</div>
+    <div class="metrics" id="pm"></div>
+    <div class="cw h220"><canvas id="popC" role="img" aria-label="Histograma de la distribución poblacional con curva teórica"></canvas></div>
+    <div class="leg">
+      <span><span class="dot" style="background:#7F77DD"></span>Densidad empírica</span>
+      <span><span class="dot" style="background:#EF9F27;width:18px;height:3px;border-radius:2px"></span>N(μ,σ²) teórica</span>
+      <span><span class="dot" style="background:#1D9E75"></span>μ real</span>
+      <span><span class="dot" style="background:#E24B4A"></span>μ₀</span>
+    </div>
+  </div>
+
+  <div class="row2">
+    <div class="panel">
+      <div class="panel-title">Distribución muestral de x̄ · N(μ, σ²/n)</div>
+      <div class="metrics" id="sm1"></div>
+      <div class="cw h260"><canvas id="smC" role="img" aria-label="Distribución muestral de la media con las 10 medias muestrales marcadas"></canvas></div>
+      <div class="leg">
+        <span><span class="dot" style="background:#7F77DD"></span>N(μ, σ²/n) teórica</span>
+        <span><span class="dot" style="background:#1D9E75"></span>No rechaza H₀</span>
+        <span><span class="dot" style="background:#E24B4A"></span>Rechaza H₀</span>
+        <span><span class="dot" style="background:#E24B4A;opacity:.2;width:12px"></span>Región de rechazo (α/2)</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Distribución muestral de s² · χ²(n−1) bajo H₀</div>
+      <div class="metrics" id="sm2"></div>
+      <div class="cw h260"><canvas id="cvC" role="img" aria-label="Distribución chi-cuadrado con los estadísticos de varianza de las 10 muestras marcados"></canvas></div>
+      <div class="leg">
+        <span><span class="dot" style="background:#534AB7"></span>χ²(n−1) bajo H₀</span>
+        <span><span class="dot" style="background:#1D9E75"></span>No rechaza H₀</span>
+        <span><span class="dot" style="background:#E24B4A"></span>Rechaza H₀</span>
+        <span><span class="dot" style="background:#E24B4A;opacity:.2;width:12px"></span>Región de rechazo (α/2)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">10 muestras independientes · n = <span id="n-lbl"></span> · clic en fila para ver su distribución</div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th>#</th><th>x̄</th><th>s²</th>
+          <th>t-stat</th><th>p (t)</th><th>H₀: μ</th>
+          <th>χ²-stat</th><th>p (χ²)</th><th>H₀: σ²</th>
+        </tr></thead>
+        <tbody id="tbl"></tbody>
+      </table>
+    </div>
+    <div class="leg" style="margin-top:10px" id="aleg"></div>
+  </div>
+
+  <div class="panel" id="sp" style="display:none">
+    <div class="panel-title" id="stit"></div>
+    <div class="metrics" id="smet"></div>
+    <div class="cw h200"><canvas id="smpC" role="img" aria-label="Histograma de la muestra seleccionada"></canvas></div>
+    <div class="leg">
+      <span><span class="dot" style="background:#378ADD"></span>Frecuencia muestral</span>
+      <span><span class="dot" style="background:#1D9E75"></span>x̄</span>
+      <span><span class="dot" style="background:#E24B4A"></span>μ₀</span>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+let PC=null,SMC=null,CVC=null,SPC=null;
+let gSamples=[],gAlpha=0.05,gH0m=50,gN=50;
+
+function bm(mu,s){let u;do{u=Math.random();}while(!u);return mu+s*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*Math.random());}
+function lgamma(x){const c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,1.20865097386618e-3,-5.3952393849535e-6];let y=x,t=x+5.5;t-=(x+.5)*Math.log(t);let s=1.000000000190015;for(let j=0;j<6;j++)s+=c[j]/++y;return-t+Math.log(2.5066282746310005*s/x);}
+function betacf(x,a,b){let qa=a+b,qp=a+1,qm=a-1,c=1,d=1-qa*x/qp;if(Math.abs(d)<1e-30)d=1e-30;d=1/d;let h=d;for(let m=1;m<=200;m++){const m2=2*m;let aa=m*(b-m)*x/((qm+m2)*(a+m2));d=1+aa*d;if(Math.abs(d)<1e-30)d=1e-30;c=1+aa/c;if(Math.abs(c)<1e-30)c=1e-30;d=1/d;h*=d*c;aa=-(a+m)*(qa+m)*x/((a+m2)*(qp+m2));d=1+aa*d;if(Math.abs(d)<1e-30)d=1e-30;c=1+aa/c;if(Math.abs(c)<1e-30)c=1e-30;d=1/d;const del=d*c;h*=del;if(Math.abs(del-1)<3e-7)break;}return h;}
+function ibeta(x,a,b){if(x<=0)return 0;if(x>=1)return 1;const lb=lgamma(a)+lgamma(b)-lgamma(a+b);if(x<(a+1)/(a+b+2))return Math.exp(a*Math.log(x)+b*Math.log(1-x)-lb)/a*betacf(x,a,b);return 1-Math.exp(b*Math.log(1-x)+a*Math.log(x)-lb)/b*betacf(1-x,b,a);}
+function tPval(t,df){return ibeta(df/(df+t*t),df/2,0.5);}
+function gammaP(a,x){if(x<=0)return 0;if(x<a+1){let ap=a,s=1/a,d=1/a;for(let n=0;n<200;n++){ap++;d*=x/ap;s+=d;if(Math.abs(d)<Math.abs(s)*1e-10)break;}return s*Math.exp(-x+a*Math.log(x)-lgamma(a));}let b=x+1-a,c=1e30,d=1/b,h=d;for(let k=1;k<=200;k++){const an=-k*(k-a);b+=2;d=an*d+b;if(Math.abs(d)<1e-30)d=1e-30;c=b+an/c;if(Math.abs(c)<1e-30)c=1e-30;d=1/d;const del=d*c;h*=del;if(Math.abs(del-1)<1e-10)break;}return 1-Math.exp(-x+a*Math.log(x)-lgamma(a))*h;}
+function chi2Pval(c2,df){const p=gammaP(df/2,c2/2);return 2*Math.min(p,1-p);}
+function normPDF(x,mu,s){return Math.exp(-.5*((x-mu)/s)**2)/(s*Math.sqrt(2*Math.PI));}
+function chi2PDF(x,df){if(x<=0)return 0;return Math.exp((df/2-1)*Math.log(x)-x/2-(df/2)*Math.log(2)-lgamma(df/2));}
+
+function tinv(p,df){let lo=0,hi=100;for(let i=0;i<80;i++){const m=(lo+hi)/2;if(tPval(m,df)>p)lo=m;else hi=m;}return(lo+hi)/2;}
+function chi2inv(p,df){let lo=0,hi=df+12*Math.sqrt(2*df)+50;for(let i=0;i<80;i++){const m=(lo+hi)/2;if(gammaP(df/2,m/2)<p)lo=m;else hi=m;}return(lo+hi)/2;}
+
+function makeBins(data,nb){let mn=data[0],mx=data[0];for(const v of data){if(v<mn)mn=v;if(v>mx)mx=v;}const w=(mx-mn)/nb||1;const b=Array.from({length:nb},(_,i)=>({x:mn+i*w+w/2,w,freq:0,dens:0}));for(const v of data){let i=Math.floor((v-mn)/w);if(i>=nb)i=nb-1;b[i].freq++;}const n=data.length;for(const x of b)x.dens=x.freq/(n*x.w);return b;}
+
+function dark(){return matchMedia('(prefers-color-scheme:dark)').matches;}
+function gridCol(){return dark()?'rgba(255,255,255,.07)':'rgba(0,0,0,.07)';}
+function f(v,d=4){return typeof v==='number'?v.toFixed(d):v;}
+
+function met(l,v,acc=false){return`<div class="met${acc?' acc':''}"><div class="lbl">${l}</div><div class="val">${v}</div></div>`;}
+
+function run(){
+  const mu=+document.getElementById('pmu').value,
+        sig=+document.getElementById('psig').value,
+        n=+document.getElementById('ns').value,
+        h0m=+document.getElementById('h0m').value,
+        h0v=+document.getElementById('h0v').value,
+        alpha=+document.getElementById('alpha').value;
+  gAlpha=alpha; gH0m=h0m; gN=n;
+  document.getElementById('n-lbl').textContent=n;
+
+  const pop=Array.from({length:100000},()=>bm(mu,sig));
+  const pm=pop.reduce((a,b)=>a+b,0)/pop.length;
+  const pv=pop.reduce((a,v)=>a+(v-pm)**2,0)/(pop.length-1);
+
+  document.getElementById('pm').innerHTML=
+    met('μ real',pm.toFixed(4),true)+met('σ² real',pv.toFixed(4),true)+
+    met('σ real',Math.sqrt(pv).toFixed(4),true)+
+    met('H₀: μ₀',h0m.toFixed(2))+met('H₀: σ₀²',h0v.toFixed(2));
+
+  drawPop(pop,pm,pv,h0m);
+
+  gSamples=Array.from({length:10},(_,i)=>{
+    const d=Array.from({length:n},()=>bm(mu,sig));
+    const m=d.reduce((a,b)=>a+b,0)/n;
+    const v=d.reduce((a,x)=>a+(x-m)**2,0)/(n-1);
+    return{id:i+1,data:d,mean:m,variance:v};
+  });
+
+  drawSampMean(gSamples,pm,pv,n,h0m,alpha);
+  drawSampVar(gSamples,n,h0v,alpha);
+  buildTable(gSamples,n,h0m,h0v,alpha);
+
+  document.getElementById('sp').style.display='none';
+  document.getElementById('ph').style.display='none';
+  document.getElementById('res').style.display='block';
+}
+
+function drawPop(pop,pm,pv,h0m){
+  if(PC)PC.destroy();
+  const bins=makeBins(pop,60);
+  const labels=bins.map(b=>b.x.toFixed(2));
+  const dens=bins.map(b=>b.dens);
+  const curve=bins.map(b=>normPDF(b.x,pm,Math.sqrt(pv)));
+  PC=new Chart(document.getElementById('popC'),{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'Densidad',data:dens,backgroundColor:'rgba(127,119,221,.5)',borderWidth:0,order:2},
+      {label:'Curva',data:curve,type:'line',borderColor:'#EF9F27',borderWidth:2,pointRadius:0,tension:.3,fill:false,order:1}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:gridCol()},ticks:{color:'#888',font:{size:10},maxTicksLimit:10},barPercentage:1,categoryPercentage:1},
+        y:{grid:{color:gridCol()},ticks:{color:'#888',font:{size:10}},title:{display:true,text:'Densidad',color:'#888',font:{size:11}}}
+      }
+    },
+    plugins:[vlinePlugin([
+      {val:pm,label:'μ real',color:'#1D9E75',dash:false},
+      {val:h0m,label:'μ₀',color:'#E24B4A',dash:true}
+    ],bins.map(b=>b.x))]
+  });
+}
+
+function drawSampMean(samples,mu,pv,n,h0m,alpha){
+  if(SMC)SMC.destroy();
+  const se=Math.sqrt(pv/n);
+  const tCrit=tinv(alpha,n-1);
+  const lo=Math.min(mu,h0m)-5*se, hi=Math.max(mu,h0m)+5*se;
+  const pts=[];
+  for(let i=0;i<=300;i++){const x=lo+i*(hi-lo)/300;pts.push({x,y:normPDF(x,mu,se)});}
+  const maxY=Math.max(...pts.map(p=>p.y));
+  const xcLo=h0m-tCrit*se, xcHi=h0m+tCrit*se;
+  const rjct=samples.filter(s=>tPval((s.mean-h0m)/Math.sqrt(s.variance/n),n-1)<alpha).length;
+
+  document.getElementById('sm1').innerHTML=
+    met('Error estándar (SE)',se.toFixed(4),true)+
+    met('t crítico (±)',tCrit.toFixed(4),true)+
+    met('Rechazan H₀',`${rjct}/10`);
+
+  SMC=new Chart(document.getElementById('smC'),{
+    type:'line',
+    data:{datasets:[{data:pts,borderColor:'#7F77DD',borderWidth:2.5,pointRadius:0,tension:.3,fill:false}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},
+      plugins:{legend:{display:false},tooltip:{enabled:false}},
+      layout:{padding:{bottom:55}},
+      scales:{
+        x:{type:'linear',min:lo,max:hi,grid:{color:gridCol()},ticks:{color:'#888',font:{size:10},maxTicksLimit:8,callback:v=>v.toFixed(1)}},
+        y:{grid:{color:gridCol()},ticks:{color:'#888',font:{size:10}},min:0,title:{display:true,text:'Densidad',color:'#888',font:{size:11}}}
+      }
+    },
+    plugins:[{
+      id:'smPl',
+      afterDraw(chart){
+        const{ctx,chartArea:{top,bottom,left,right},scales:{x,y}}=chart;
+        ctx.save();
+        const pxLo=Math.max(left,x.getPixelForValue(xcLo));
+        const pxHi=Math.min(right,x.getPixelForValue(xcHi));
+        ctx.fillStyle='rgba(226,75,74,.13)';
+        ctx.fillRect(left,top,pxLo-left,bottom-top);
+        ctx.fillRect(pxHi,top,right-pxHi,bottom-top);
+        ctx.setLineDash([5,4]);ctx.lineWidth=1.5;
+        [[xcLo,'#E24B4A'],[xcHi,'#E24B4A']].forEach(([v,c])=>{
+          const px=x.getPixelForValue(v);
+          ctx.strokeStyle=c;ctx.beginPath();ctx.moveTo(px,top);ctx.lineTo(px,bottom);ctx.stroke();
+        });
+        ctx.setLineDash([]);
+        const drawVline=(px,color)=>{ctx.strokeStyle=color;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(px,top);ctx.lineTo(px,bottom);ctx.stroke();};
+        drawVline(x.getPixelForValue(mu),'#1D9E75');
+        ctx.lineWidth=2;ctx.strokeStyle='#E24B4A';ctx.setLineDash([4,4]);
+        const pxH0=x.getPixelForValue(h0m);ctx.beginPath();ctx.moveTo(pxH0,top);ctx.lineTo(pxH0,bottom);ctx.stroke();
+        ctx.setLineDash([]);
+        const slot=bottom+8;
+        samples.forEach((s,i)=>{
+          const t=(s.mean-h0m)/Math.sqrt(s.variance/n);
+          const rej=tPval(t,n-1)<alpha;
+          const col=rej?'#E24B4A':'#1D9E75';
+          const px=Math.min(right,Math.max(left,x.getPixelForValue(s.mean)));
+          ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(px,bottom);ctx.lineTo(px,slot+4);ctx.stroke();
+          ctx.fillStyle=col;ctx.beginPath();ctx.arc(px,slot+10,5,0,2*Math.PI);ctx.fill();
+          ctx.fillStyle=col;ctx.font='bold 10px system-ui';ctx.textAlign='center';
+          ctx.fillText(s.id,px,slot+28);
+        });
+        ctx.restore();
+      }
+    }]
+  });
+}
+
+function drawSampVar(samples,n,h0v,alpha){
+  if(CVC)CVC.destroy();
+  const df=n-1;
+  const cLo=chi2inv(alpha/2,df), cHi=chi2inv(1-alpha/2,df);
+  const xMax=Math.min(chi2inv(0.9995,df),cHi*2.5);
+  const pts=[];
+  for(let i=0;i<=400;i++){const x=i*xMax/400;pts.push({x,y:chi2PDF(x,df)});}
+  const maxY=Math.max(...pts.map(p=>p.y));
+  const rjct=samples.filter(s=>chi2Pval((n-1)*s.variance/h0v,df)<alpha).length;
+
+  document.getElementById('sm2').innerHTML=
+    met('χ² crítico inferior',cLo.toFixed(4),true)+
+    met('χ² crítico superior',cHi.toFixed(4),true)+
+    met('Rechazan H₀',`${rjct}/10`);
+
+  CVC=new Chart(document.getElementById('cvC'),{
+    type:'line',
+    data:{datasets:[{data:pts,borderColor:'#534AB7',borderWidth:2.5,pointRadius:0,tension:.2,fill:false}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},
+      plugins:{legend:{display:false},tooltip:{enabled:false}},
+      layout:{padding:{bottom:55}},
+      scales:{
+        x:{type:'linear',min:0,max:xMax,grid:{color:gridCol()},ticks:{color:'#888',font:{size:10},maxTicksLimit:8,callback:v=>v.toFixed(1)}},
+        y:{grid:{color:gridCol()},ticks:{color:'#888',font:{size:10}},min:0,title:{display:true,text:'Densidad',color:'#888',font:{size:11}}}
+      }
+    },
+    plugins:[{
+      id:'cvPl',
+      afterDraw(chart){
+        const{ctx,chartArea:{top,bottom,left,right},scales:{x}}=chart;
+        ctx.save();
+        const pxLo=Math.min(right,Math.max(left,x.getPixelForValue(cLo)));
+        const pxHi=Math.min(right,Math.max(left,x.getPixelForValue(cHi)));
+        ctx.fillStyle='rgba(226,75,74,.13)';
+        ctx.fillRect(left,top,pxLo-left,bottom-top);
+        ctx.fillRect(pxHi,top,right-pxHi,bottom-top);
+        ctx.setLineDash([5,4]);ctx.lineWidth=1.5;
+        [[cLo,'#E24B4A'],[cHi,'#E24B4A']].forEach(([v,c])=>{
+          const px=x.getPixelForValue(v);
+          if(px>=left&&px<=right){ctx.strokeStyle=c;ctx.beginPath();ctx.moveTo(px,top);ctx.lineTo(px,bottom);ctx.stroke();}
+        });
+        ctx.setLineDash([]);
+        const slot=bottom+8;
+        samples.forEach(s=>{
+          const chi2=(n-1)*s.variance/h0v;
+          const rej=chi2Pval(chi2,df)<alpha;
+          const col=rej?'#E24B4A':'#1D9E75';
+          const px=Math.min(right,Math.max(left,x.getPixelForValue(chi2)));
+          ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(px,bottom);ctx.lineTo(px,slot+4);ctx.stroke();
+          ctx.fillStyle=col;ctx.beginPath();ctx.arc(px,slot+10,5,0,2*Math.PI);ctx.fill();
+          ctx.fillStyle=col;ctx.font='bold 10px system-ui';ctx.textAlign='center';
+          ctx.fillText(s.id,px,slot+28);
+        });
+        ctx.restore();
+      }
+    }]
+  });
+}
+
+function vlinePlugin(lines,xs){
+  return{id:'vl',afterDraw(chart){
+    const{ctx,chartArea:{top,bottom},scales:{x}}=chart;
+    const nearest=v=>xs.reduce((b,xv,i)=>Math.abs(xv-v)<Math.abs(xs[b]-v)?i:b,0);
+    ctx.save();
+    lines.forEach(({val,label,color,dash})=>{
+      const i=nearest(val);
+      const px=x.getPixelForTick?x.getPixelForTick(i):x.getPixelForValue(i);
+      ctx.strokeStyle=color;ctx.lineWidth=2;ctx.setLineDash(dash?[5,4]:[]);
+      ctx.beginPath();ctx.moveTo(px,top);ctx.lineTo(px,bottom);ctx.stroke();
+      ctx.setLineDash([]);ctx.fillStyle=color;ctx.font='500 11px system-ui';
+      ctx.fillText(label,px+4,top+13);
+    });
+    ctx.restore();
+  }};
+}
+
+function buildTable(samples,n,h0m,h0v,alpha){
+  const tbody=document.getElementById('tbl');tbody.innerHTML='';
+  samples.forEach(s=>{
+    const t=(s.mean-h0m)/Math.sqrt(s.variance/n);
+    const pT=tPval(t,n-1);
+    const c2=(n-1)*s.variance/h0v;
+    const pC=chi2Pval(c2,n-1);
+    const rM=pT<alpha,rS=pC<alpha;
+    const tr=document.createElement('tr');
+    tr.className='sr';tr.dataset.id=s.id;
+    tr.innerHTML=`<td style="color:var(--color-text-secondary,#777)">${s.id}</td>
+      <td>${f(s.mean)}</td><td>${f(s.variance)}</td>
+      <td style="color:#534AB7">${f(t)}</td>
+      <td class="${rM?'sig':'ok'}">${pT<.001?'<0.001':f(pT)}</td>
+      <td><span class="badge ${rM?'fail':'pass'}">${rM?'Rechazar':'No rechazar'}</span></td>
+      <td style="color:#3C3489">${f(c2)}</td>
+      <td class="${rS?'sig':'ok'}">${pC<.001?'<0.001':f(pC)}</td>
+      <td><span class="badge ${rS?'fail':'pass'}">${rS?'Rechazar':'No rechazar'}</span></td>`;
+    tr.addEventListener('click',()=>selectSample(s.id));
+    tbody.appendChild(tr);
+  });
+  document.getElementById('aleg').innerHTML=
+    `<span style="color:var(--color-text-secondary,#777)">α = <strong>${alpha}</strong></span>`+
+    `<span><span class="dot pass"></span>No rechazar H₀ (p ≥ α)</span>`+
+    `<span><span class="dot fail"></span>Rechazar H₀ (p < α)</span>`;
+}
+
+function selectSample(id){
+  document.querySelectorAll('.sr').forEach(r=>r.classList.toggle('sel',+r.dataset.id===id));
+  const s=gSamples.find(x=>x.id===id);
+  const t=(s.mean-gH0m)/Math.sqrt(s.variance/gN);
+  const pT=tPval(t,gN-1);
+  const rM=pT<gAlpha;
+  document.getElementById('stit').textContent=`Muestra #${id} · n = ${gN}`;
+  document.getElementById('smet').innerHTML=
+    met('x̄',s.mean.toFixed(4),true)+met('s²',s.variance.toFixed(4),true)+
+    met('t-stat',t.toFixed(4))+met('Decisión H₀: μ',rM?'Rechazar':'No rechazar');
+  document.getElementById('sp').style.display='block';
+  if(SPC)SPC.destroy();
+  const bins=makeBins(s.data,20);
+  const labels=bins.map(b=>b.x.toFixed(2));
+  const xs=bins.map(b=>b.x);
+  SPC=new Chart(document.getElementById('smpC'),{
+    type:'bar',
+    data:{labels,datasets:[{label:'Frec',data:bins.map(b=>b.freq),backgroundColor:'rgba(55,138,221,.55)',borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:250},
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:gridCol()},ticks:{color:'#888',font:{size:10},maxTicksLimit:8},barPercentage:1,categoryPercentage:1},
+        y:{grid:{color:gridCol()},ticks:{color:'#888',font:{size:10}},title:{display:true,text:'Frecuencia',color:'#888',font:{size:11}}}
+      }
+    },
+    plugins:[vlinePlugin([{val:s.mean,label:'x̄',color:'#1D9E75',dash:false},{val:gH0m,label:'μ₀',color:'#E24B4A',dash:true}],xs)]
+  });
+}
+</script>
