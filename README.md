@@ -6,7 +6,7 @@ Herramienta visual e interactiva para explorar inferencia estadística clásica 
 
 Abrí el [`demo`](https://fcontiggiani.github.io/Laboratorio-de-Prueba-de-Hipotesis/index.html) directamente en el navegador — no requiere servidor.
 
-> Si el repositorio tiene GitHub Pages activado, la demo en vivo estará disponible en `https://fcontiggiani.github.io/Laboratorio-de-Prueba-de-Hipotesis/`.
+
 
 ## ¿Qué hace?
 
