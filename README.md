@@ -4,7 +4,9 @@ Herramienta visual e interactiva para explorar inferencia estadística clásica 
 
 ## Demo
 
-Abrí `index.html` directamente en el navegador — no requiere servidor.
+Abrí el [`demo`](https://fcontiggiani.github.io/Laboratorio-de-Prueba-de-Hipotesis/index.html) directamente en el navegador — no requiere servidor.
+
+> Si el repositorio tiene GitHub Pages activado, la demo en vivo estará disponible en `https://fcontiggiani.github.io/Laboratorio-de-Prueba-de-Hipotesis/`.
 
 ## ¿Qué hace?
 
@@ -69,7 +71,7 @@ Ambas se cargan desde CDN — no hay `package.json` ni paso de build.
 ## Uso
 
 ```bash
-git clone https://github.com/fcontiggiani/<repo>.git
+git clone https://github.com/<usuario>/<repo>.git
 cd <repo>
 # Abrir index.html en el navegador, o:
 python -m http.server 8080
