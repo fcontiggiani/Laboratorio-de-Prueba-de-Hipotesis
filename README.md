@@ -4,7 +4,7 @@ Herramienta visual e interactiva para explorar inferencia estadística clásica 
 
 ## Demo
 
-Abrí `index.html` directamente en el navegador — no requiere servidor.
+Abrí el `demo`(./index.html) directamente en el navegador — no requiere servidor.
 
 ## ¿Qué hace?
 
